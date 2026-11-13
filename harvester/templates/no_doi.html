@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}无 DOI 记录{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>无 DOI 记录（保留原标识与题名，不参与 DOI 合并）</h2>
+  <table>
+    <thead><tr><th>来源</th><th>OAI 标识</th><th>题名</th><th>入目录时间</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr><td><b>{{ r.code }}</b><br><span class="muted">优先级 {{ r.priority }}</span></td>
+          <td><code>{{ r.oai_identifier }}</code></td>
+          <td>{{ r.title or '—' }}</td>
+          <td class="muted">{{ r.harvested_at }}</td></tr>
+    {% else %}
+      <tr><td colspan="4" class="muted">暂无无 DOI 记录。</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p><a class="btn btn-ghost" href="{{ url_for('dashboard') }}">← 返回控制台</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+services:
+  mock-a:
+    build: .
+    image: library-oai-harvester:latest
+    entrypoint: ["./entrypoint.sh", "mock-a"]
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+
+  mock-b:
+    build: .
+    image: library-oai-harvester:latest
+    entrypoint: ["./entrypoint.sh", "mock-b"]
+    ports:
+      - "8082:8082"
+    restart: unless-stopped
+
+  harvester:
+    build: .
+    image: library-oai-harvester:latest
+    entrypoint: ["./entrypoint.sh", "harvester"]
+    environment:
+      HARVESTER_SOURCES: |-
+        [
+          {"id": 1, "code": "A", "name": "华东理工大学机构库（优先来源）",
+           "base_url": "http://mock-a:8081/oai", "priority": 1},
+          {"id": 2, "code": "B", "name": "西部师范大学知识库",
+           "base_url": "http://mock-b:8082/oai", "priority": 2}
+        ]
+      MOCK_PANEL_LINKS: |-
+        [
+          {"code": "A", "url": "http://localhost:8081/panel"},
+          {"code": "B", "url": "http://localhost:8082/panel"}
+        ]
+      OAI_CONNECT_TIMEOUT: "8"
+      OAI_READ_TIMEOUT: "40"
+      MAX_TOKEN_RESTARTS: "2"
+    ports:
+      - "8000:8000"
+    volumes:
+      - harvester-data:/data
+    depends_on:
+      - mock-a
+      - mock-b
+    restart: unless-stopped
+
+volumes:
+  harvester-data:

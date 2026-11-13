@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ doi_key }} · 出处详情{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>DOI 详情</h2>
+  <table>
+    <tr><th style="width:150px">归一化 DOI</th><td><code>{{ doi_key }}</code></td></tr>
+    <tr><th>采用题名</th><td>{{ merged.preferred_title if merged else '（当前全部出处均已撤稿）' }}</td></tr>
+    <tr><th>出处数量</th><td>{{ provenance | length }} 个来源记录（活跃 {{ provenance | selectattr('is_deleted','equalto',0) | list | length }} / 撤稿 {{ provenance | selectattr('is_deleted','equalto',1) | list | length }}）</td></tr>
+  </table>
+</div>
+<div class="card">
+  <h2>全部出处（按来源优先级排序）</h2>
+  <table>
+    <thead><tr><th>来源</th><th>OAI 标识</th><th>题名</th><th>原始 DOI 值</th><th>状态</th><th>采集轮次/时间</th></tr></thead>
+    <tbody>
+    {% for p in provenance %}
+      <tr>
+        <td><b>{{ p.code }}</b><br><span class="muted">优先级 {{ p.priority }}</span></td>
+        <td><code>{{ p.oai_identifier }}</code></td>
+        <td>{{ p.title or '—' }}</td>
+        <td>{% if p.doi_raw %}<code>{{ p.doi_raw }}</code>{% else %}—{% endif %}</td>
+        <td>{% if p.is_deleted %}<span class="badge b-deleted">本来源已撤稿</span>{% else %}<span class="badge b-active">在架</span>{% endif %}</td>
+        <td class="muted">#{{ p.harvested_round }}<br>{{ p.harvested_at }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted" style="margin-bottom:0">撤稿只撤本来源：其他来源仍在架时该 DOI 依旧可检索，并由优先来源提供题名。</p>
+</div>
+<p><a class="btn btn-ghost" href="{{ url_for('catalog') }}">← 返回目录</a></p>
+{% endblock %}

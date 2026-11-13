@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>目录概况</h2>
+  <div class="stat">
+    <div><b>{{ stats.merged_doi_count }}</b><span class="muted">去重后 DOI 条目</span></div>
+    <div><b>{{ stats.shared_doi_count }}</b><span class="muted">两源共有 DOI</span></div>
+    <div><b>{{ stats.no_doi_count }}</b><span class="muted">无 DOI 记录（保留不合并）</span></div>
+  </div>
+</div>
+
+{% for src in stats.per_source %}
+<div class="card">
+  <h2>来源 {{ src.code }} · {{ src.name }}
+    <span class="muted">（优先级 {{ src.priority }}，数字越小越优先）</span>
+  </h2>
+  <p class="muted" style="margin:0 0 10px">正式目录：活跃 {{ src.active }} 条 / 已撤稿 {{ src.deleted }} 条 / 合计 {{ src.total }} 条
+    {% if src.last_success_at %} · 最近完整轮次：{{ src.last_success_at }}{% endif %}</p>
+  {% set st = states[loop.index0] %}
+  <table>
+    <tr><th style="width:120px">运行状态</th><td><span class="badge b-{{ st.status }}">{{ {'idle':'未采集','running':'采集中','success':'成功','error':'失败可续采'}[st.status] }}</span>
+      {% if running[st.source_id] %}<span class="muted">（后台线程运行中）</span>{% endif %}</td></tr>
+    <tr><th>采集轮次</th><td>#{{ st.round_id }}{% if st.restarts %} · 令牌失效重采 {{ st.restarts }} 次{% endif %}</td></tr>
+    <tr><th>进度</th><td>
+      第 {{ st.pages_done }} 页 · 已取 {{ st.records_fetched }} 条
+      {% if st.total_expected %} / 预计 {{ st.total_expected }} 条
+        {% set pct = (100 * st.records_fetched / st.total_expected) | round(0) %}
+        <div class="bar"><i style="width:{{ pct }}%"></i></div>
+        <span class="muted">{{ pct }}%</span>
+      {% endif %}
+    </td></tr>
+    <tr><th>resumptionToken</th><td>{% if st.resumption_token %}<code>{{ st.resumption_token[:60] }}…</code>
+      <span class="muted">（已落盘，重启后从此页续采）</span>{% else %}<span class="muted">无（下一轮从首页开始）</span>{% endif %}</td></tr>
+    {% if st.status == 'error' %}
+    <tr><th>错误</th><td><code>{{ st.error_code }}</code>
+      <div class="err">{{ st.error_message }}</div></td></tr>
+    {% endif %}
+    {% if st.started_at %}<tr><th>时间</th><td class="muted">启动 {{ st.started_at }}{% if st.finished_at %} · 结束 {{ st.finished_at }}{% endif %}</td></tr>{% endif %}
+  </table>
+  <p style="margin-bottom:0">
+    <form class="inline" method="post" action="{{ url_for('harvest_start') }}">
+      <input type="hidden" name="source_id" value="{{ st.source_id }}">
+      <input type="hidden" name="html" value="1">
+      <button type="submit" {% if running[st.source_id] %}disabled{% endif %}>
+        {% if running[st.source_id] %}采集中（重复点击将复用任务）{% elif st.status == 'error' %}续采{% elif st.status == 'success' %}重新采集一轮{% else %}启动采集{% endif %}
+      </button>
+    </form>
+    <span class="muted">网络失败后点「续采」从断点继续；同源重复启动自动复用同一任务。</span>
+  </p>
+</div>
+{% endfor %}
+
+<div class="card">
+  <h2>操作与演示工具</h2>
+  <form class="inline" method="post" action="{{ url_for('harvest_start') }}">
+    <input type="hidden" name="html" value="1">
+    <button type="submit">并行启动两源采集</button>
+  </form>
+  <a class="btn btn-ghost" href="{{ url_for('api_sources') }}" target="_blank">查看状态 JSON</a>
+  <a class="btn btn-ghost" href="{{ url_for('api_stats') }}" target="_blank">统计 JSON</a>
+  <p class="panel-links" style="margin-top:14px">故障注入控制台（本地双源）：
+    {% for link in panel_links %}<a href="{{ link.url }}" target="_blank">🛠 来源 {{ link.code }} 控制台 →</a>{% endfor %}
+  </p>
+</div>
+{% endblock %}

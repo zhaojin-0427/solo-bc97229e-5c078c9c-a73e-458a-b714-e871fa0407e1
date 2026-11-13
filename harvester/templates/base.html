@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}机构库论文采集目录{% endblock %}</title>
+  <style>
+    :root { --blue:#1f5fa8; --bg:#f5f7fa; --line:#dde3ea; --red:#b42318; --green:#177245; --amber:#b25e09; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif; background:var(--bg); color:#1c2430; }
+    header { background:var(--blue); color:#fff; padding:14px 28px; display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+    header h1 { font-size:18px; margin:0; font-weight:600; }
+    header nav a { color:#dce8f7; text-decoration:none; margin-right:18px; font-size:14px; }
+    header nav a:hover { color:#fff; text-decoration:underline; }
+    main { max-width:1180px; margin:24px auto; padding:0 20px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:18px 22px; margin-bottom:20px; }
+    h2 { font-size:16px; margin:0 0 14px; }
+    table { width:100%; border-collapse:collapse; font-size:13.5px; }
+    th, td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+    th { color:#5a6b80; font-weight:600; background:#fafbfd; }
+    tr:last-child td { border-bottom:none; }
+    .badge { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:600; }
+    .b-idle { background:#eef1f5; color:#55606e; }
+    .b-running { background:#e3efff; color:#1f5fa8; }
+    .b-success { background:#e2f5ea; color:var(--green); }
+    .b-error { background:#fde8e6; color:var(--red); }
+    .b-deleted { background:#fde8e6; color:var(--red); }
+    .b-active { background:#e2f5ea; color:var(--green); }
+    button, .btn { background:var(--blue); color:#fff; border:none; border-radius:7px; padding:8px 16px; font-size:13.5px; cursor:pointer; text-decoration:none; display:inline-block; }
+    button:hover, .btn:hover { background:#184d87; }
+    button:disabled { background:#9db4cf; cursor:not-allowed; }
+    .btn-ghost { background:#fff; color:var(--blue); border:1px solid var(--blue); }
+    .muted { color:#7a8794; font-size:12.5px; }
+    .err { color:var(--red); font-size:12.5px; margin-top:4px; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .stat { display:flex; gap:26px; flex-wrap:wrap; }
+    .stat div b { font-size:22px; display:block; }
+    .bar { background:#eef1f5; border-radius:6px; height:8px; overflow:hidden; margin-top:6px; }
+    .bar i { display:block; height:100%; background:var(--blue); }
+    form.inline { display:inline; }
+    .search { display:flex; gap:10px; margin-bottom:14px; }
+    .search input { flex:1; padding:9px 12px; border:1px solid var(--line); border-radius:7px; font-size:14px; }
+    .pager { margin-top:14px; display:flex; gap:8px; align-items:center; }
+    .pager a { padding:6px 12px; border:1px solid var(--line); border-radius:6px; text-decoration:none; color:var(--blue); background:#fff; font-size:13px; }
+    .pager span.cur { padding:6px 12px; background:var(--blue); color:#fff; border-radius:6px; font-size:13px; }
+    code { background:#f0f3f7; padding:1px 6px; border-radius:4px; font-size:12.5px; }
+    .panel-links a { margin-right:14px; font-size:13px; }
+    .tag { background:#f0f3f7; border-radius:5px; padding:1px 8px; font-size:12px; margin-right:6px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>📚 双机构库 OAI-PMH 采集去重目录</h1>
+  <nav>
+    <a href="{{ url_for('dashboard') }}">采集控制台</a>
+    <a href="{{ url_for('catalog') }}">DOI 目录</a>
+    <a href="{{ url_for('no_doi') }}">无 DOI 记录</a>
+  </nav>
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

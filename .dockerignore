@@ -1,0 +1,11 @@
+.pydeps/
+__pycache__/
+*.pyc
+data/
+*.db
+*.db-wal
+*.db-shm
+.git/
+tests/
+run_local.sh
+demo.sh
